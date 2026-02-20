@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Template Cloner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Resume Template Cloner</h1>
+    <p>
+      Paste your template resume (A) and source resume (B). The tool keeps A's section order,
+      fills matching headers from B, and removes non-matching sections with no blank gaps.
+    </p>
+
+    <section class="grid">
+      <label>
+        <span>Resume A (template format)</span>
+        <textarea id="resumeA" placeholder="Example:\nSUMMARY\nTemplate summary\n\nEXPERIENCE\n...\n"></textarea>
+      </label>
+
+      <label>
+        <span>Resume B (source content)</span>
+        <textarea id="resumeB" placeholder="Example:\nSummary\nSenior developer...\n\nExperience\nBuilt...\n"></textarea>
+      </label>
+    </section>
+
+    <div class="actions">
+      <button id="cloneBtn">Clone B into A</button>
+      <button id="copyBtn">Copy Result</button>
+    </div>
+
+    <label>
+      <span>Generated Resume</span>
+      <textarea id="result" readonly></textarea>
+    </label>
+
+    <details>
+      <summary>How header matching works</summary>
+      <ul>
+        <li>Header names are normalized (case-insensitive, punctuation ignored).</li>
+        <li>Aliases are supported (e.g., "Work Experience" == "Experience").</li>
+        <li>If a header from A does not exist in B, it is removed entirely.</li>
+      </ul>
+    </details>
+  </main>
+
+  <script src="resume-cloner.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
