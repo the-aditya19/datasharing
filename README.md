@@ -207,10 +207,9 @@ Behavior:
 - Common header aliases are supported (e.g., `Work Experience` and `Experience`).
 - If a section in A has no matching section in B, that section is removed completely (including empty space).
 
-### Run locally
+### Use offline on any laptop (no Python needed)
 
-```bash
-python -m http.server 8000
-```
-
-Then open <http://localhost:8000> in your browser.
+1. Share the single file `index.html`.
+2. Double-click it (or right-click → Open with browser).
+3. Paste Resume A and Resume B, then click **Clone B into A**.
+4. Optionally click **Save This Tool as HTML** to export another copy of the same standalone tool.
