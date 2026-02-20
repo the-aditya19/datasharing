@@ -190,3 +190,27 @@ Contributors
 * [Nick Horton](https://www.amherst.edu/people/facstaff/nhorton) - Minor wording suggestions.
 
 
+
+---
+
+## Resume template cloner web tool
+
+This repository now includes a small static web app that lets you:
+
+1. Paste **Resume A** as the target template format.
+2. Paste **Resume B** as the source content.
+3. Auto-generate a new resume that keeps A's section order and style while filling content from matching headers in B.
+
+Behavior:
+
+- Matching is case-insensitive and punctuation-insensitive.
+- Common header aliases are supported (e.g., `Work Experience` and `Experience`).
+- If a section in A has no matching section in B, that section is removed completely (including empty space).
+
+### Run locally
+
+```bash
+python -m http.server 8000
+```
+
+Then open <http://localhost:8000> in your browser.
