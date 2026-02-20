@@ -3,308 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Offline Resume Template Cloner</title>
-  <style>
-    :root {
-      color-scheme: light;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: #f4f6fb;
-      color: #1a2233;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 1.5rem auto;
-      padding: 1rem;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 1.7rem;
-    }
-
-    .subtext {
-      margin: 0.75rem 0 1rem;
-      color: #45506a;
-      line-height: 1.45;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    label {
-      display: block;
-      font-weight: 700;
-    }
-
-    label span {
-      display: block;
-      margin-bottom: 0.45rem;
-      font-size: 0.95rem;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 260px;
-      border: 1px solid #cad1e0;
-      border-radius: 0.65rem;
-      padding: 0.75rem;
-      font: 500 0.94rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      resize: vertical;
-      box-sizing: border-box;
-      background: #fff;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-bottom: 1rem;
-    }
-
-    button {
-      border: 0;
-      border-radius: 0.6rem;
-      padding: 0.65rem 0.95rem;
-      background: #285ae6;
-      color: #fff;
-      font-weight: 650;
-      cursor: pointer;
-    }
-
-    button.secondary {
-      background: #4b556e;
-    }
-
-    button:disabled {
-      opacity: 0.65;
-      cursor: default;
-    }
-
-    details {
-      margin-top: 0.8rem;
-      background: #eef2ff;
-      border: 1px solid #d6dff8;
-      border-radius: 0.65rem;
-      padding: 0.6rem 0.75rem;
-      color: #2e3a57;
-    }
-
-    code {
-      background: #e8edfb;
-      padding: 0.1rem 0.35rem;
-      border-radius: 0.3rem;
-    }
-  </style>
+  <title>Resume Template Cloner</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="container">
-    <h1>Offline Resume Template Cloner (Single HTML File)</h1>
-    <p class="subtext">
-      This file works fully offline. Share this <code>.html</code> file directly with anyone.
-      Paste template <strong>Resume A</strong> and source <strong>Resume B</strong>, then click
-      <strong>Clone B into A</strong>. Unmatched sections from A are removed automatically.
+    <h1>Resume Template Cloner</h1>
+    <p>
+      Paste your template resume (A) and source resume (B). The tool keeps A's section order,
+      fills matching headers from B, and removes non-matching sections with no blank gaps.
     </p>
-
-    <div class="actions">
-      <button id="sampleBtn" class="secondary">Load Sample Data</button>
-      <button id="cloneBtn">Clone B into A</button>
-      <button id="copyBtn" class="secondary">Copy Result</button>
-      <button id="downloadBtn" class="secondary">Download Result (.txt)</button>
-      <button id="saveToolBtn" class="secondary">Save This Tool as HTML</button>
-    </div>
 
     <section class="grid">
       <label>
-        <span>Resume A (template format to preserve)</span>
-        <textarea id="resumeA" placeholder="SUMMARY\nTemplate summary here\n\nEXPERIENCE\nTemplate bullets...\n\nSKILLS\nTemplate skills..."></textarea>
+        <span>Resume A (template format)</span>
+        <textarea id="resumeA" placeholder="Example:\nSUMMARY\nTemplate summary\n\nEXPERIENCE\n...\n"></textarea>
       </label>
 
       <label>
-        <span>Resume B (source content to copy from)</span>
-        <textarea id="resumeB" placeholder="Summary\nSenior developer with 8 years...\n\nWork Experience\nBuilt APIs\nImproved latency by 30%\n\nSkills\nJavaScript, Node.js"></textarea>
+        <span>Resume B (source content)</span>
+        <textarea id="resumeB" placeholder="Example:\nSummary\nSenior developer...\n\nExperience\nBuilt...\n"></textarea>
       </label>
     </section>
 
+    <div class="actions">
+      <button id="cloneBtn">Clone B into A</button>
+      <button id="copyBtn">Copy Result</button>
+    </div>
+
     <label>
       <span>Generated Resume</span>
-      <textarea id="result" readonly placeholder="Result will appear here..."></textarea>
+      <textarea id="result" readonly></textarea>
     </label>
 
     <details>
-      <summary>Matching behavior</summary>
+      <summary>How header matching works</summary>
       <ul>
-        <li>Header matching is case-insensitive and punctuation-insensitive.</li>
-        <li>Aliases are supported, e.g., <code>Work Experience</code> → <code>Experience</code>.</li>
-        <li>If a header in A has no match in B, that whole section is removed with no blank space.</li>
+        <li>Header names are normalized (case-insensitive, punctuation ignored).</li>
+        <li>Aliases are supported (e.g., "Work Experience" == "Experience").</li>
+        <li>If a header from A does not exist in B, it is removed entirely.</li>
       </ul>
     </details>
   </main>
 
-  <script>
-    (function () {
-      const HEADER_ALIASES = {
-        profile: 'summary',
-        objective: 'summary',
-        about: 'summary',
-        'work experience': 'experience',
-        employment: 'experience',
-        'professional experience': 'experience',
-        'education background': 'education',
-        academics: 'education',
-        'technical skills': 'skills',
-        competencies: 'skills',
-        achievements: 'awards',
-        'contact details': 'contact information',
-        contact: 'contact information'
-      };
-
-      function normalizeHeader(raw) {
-        const cleaned = raw
-          .toLowerCase()
-          .replace(/[^a-z0-9\s]/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-
-        return HEADER_ALIASES[cleaned] || cleaned;
-      }
-
-      function isLikelyHeader(line) {
-        const trimmed = line.trim();
-        if (!trimmed) return false;
-        if (trimmed.endsWith(':')) return true;
-
-        const plain = trimmed.replace(/[^a-zA-Z\s]/g, '').trim();
-        if (!plain) return false;
-
-        const words = plain.split(/\s+/);
-        if (words.length > 5) return false;
-
-        const uppercaseRatio =
-          plain.split('').filter((ch) => /[A-Z]/.test(ch)).length /
-          Math.max(plain.replace(/\s/g, '').length, 1);
-
-        const titleCaseLike = words.every((word) => /^[A-Z][a-z]*$/.test(word));
-        return uppercaseRatio > 0.65 || titleCaseLike;
-      }
-
-      function parseResumeSections(text) {
-        const lines = text.replace(/\r\n?/g, '\n').split('\n');
-        const sections = [];
-        let currentHeader = null;
-        let currentContent = [];
-
-        function pushCurrent() {
-          if (!currentHeader) return;
-          const content = currentContent.join('\n').trim();
-          sections.push({
-            header: currentHeader,
-            normalizedHeader: normalizeHeader(currentHeader),
-            content
-          });
-        }
-
-        for (const line of lines) {
-          if (isLikelyHeader(line)) {
-            pushCurrent();
-            currentHeader = line.trim().replace(/:$/, '');
-            currentContent = [];
-          } else if (currentHeader) {
-            currentContent.push(line);
-          }
-        }
-
-        pushCurrent();
-        return sections;
-      }
-
-      function cloneResume(templateText, sourceText) {
-        const templateSections = parseResumeSections(templateText);
-        const sourceSections = parseResumeSections(sourceText);
-
-        const sourceMap = new Map();
-        for (const section of sourceSections) {
-          if (section.content) {
-            sourceMap.set(section.normalizedHeader, section.content);
-          }
-        }
-
-        const kept = [];
-        for (const section of templateSections) {
-          const matchedContent = sourceMap.get(section.normalizedHeader);
-          if (!matchedContent) continue;
-          kept.push(`${section.header}\n${matchedContent}`.trim());
-        }
-
-        return kept.join('\n\n').trim();
-      }
-
-      const resumeA = document.getElementById('resumeA');
-      const resumeB = document.getElementById('resumeB');
-      const result = document.getElementById('result');
-
-      const cloneBtn = document.getElementById('cloneBtn');
-      const copyBtn = document.getElementById('copyBtn');
-      const sampleBtn = document.getElementById('sampleBtn');
-      const downloadBtn = document.getElementById('downloadBtn');
-      const saveToolBtn = document.getElementById('saveToolBtn');
-
-      const sampleA = `SUMMARY\nTemplate summary text\n\nEXPERIENCE\nTemplate bullets\n\nPROJECTS\nTemplate projects\n\nSKILLS\nTemplate skills`;
-      const sampleB = `Summary\nBackend engineer with 8+ years of experience.\n\nWork Experience\n- Built scalable APIs serving 2M+ users.\n- Reduced p95 latency by 32%.\n\nSkills\nJavaScript, Node.js, PostgreSQL, AWS`;
-
-      sampleBtn.addEventListener('click', () => {
-        resumeA.value = sampleA;
-        resumeB.value = sampleB;
-        result.value = '';
-      });
-
-      cloneBtn.addEventListener('click', () => {
-        result.value = cloneResume(resumeA.value, resumeB.value);
-      });
-
-      copyBtn.addEventListener('click', async () => {
-        if (!result.value) return;
-        try {
-          await navigator.clipboard.writeText(result.value);
-          copyBtn.textContent = 'Copied';
-        } catch {
-          copyBtn.textContent = 'Copy blocked';
-        }
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy Result';
-        }, 1200);
-      });
-
-      downloadBtn.addEventListener('click', () => {
-        if (!result.value) return;
-        const blob = new Blob([result.value], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'cloned-resume.txt';
-        a.click();
-        URL.revokeObjectURL(url);
-      });
-
-      saveToolBtn.addEventListener('click', () => {
-        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'offline-resume-cloner.html';
-        a.click();
-        URL.revokeObjectURL(url);
-      });
-    })();
-  </script>
+  <script src="resume-cloner.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
